@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: invoice-backend
+Transform:
+- AWS::Serverless-2016-10-31
+Globals:
+  Api:
+    Cors:
+      AllowMethods: '''GET,POST,OPTIONS'''
+      AllowHeaders: '''*'''
+      AllowOrigin: '''*'''
+Resources:
+  getAllItemsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/get-all-items.getAllItemsHandler
+      Runtime: nodejs22.x
+      Architectures:
+      - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /
+            Method: GET
+      CodeUri: getAllItemsFunction
+    Metadata:
+      SamResourceId: getAllItemsFunction
+  getByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/get-by-id.getByIdHandler
+      Runtime: nodejs22.x
+      Architectures:
+      - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: GET
+      CodeUri: getByIdFunction
+    Metadata:
+      SamResourceId: getByIdFunction
+  putItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/put-item.putItemHandler
+      Runtime: nodejs22.x
+      Architectures:
+      - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
+      CodeUri: putItemFunction
+    Metadata:
+      SamResourceId: putItemFunction
+  uploadInvoiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: uploadInvoiceFunction
+      Handler: upload-invoice.uploadInvoiceHandler
+      Runtime: nodejs22.x
+      Architectures:
+      - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+      - S3CrudPolicy:
+          BucketName: keval-invoice-scanner-2026
+      Events:
+        UploadApi:
+          Type: Api
+          Properties:
+            Path: /upload
+            Method: POST
+    Metadata:
+      SamResourceId: uploadInvoiceFunction
+Outputs:
+  WebEndpoint:
+    Description: API Gateway endpoint URL
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/
