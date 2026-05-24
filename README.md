@@ -1,0 +1,1 @@
+# serverless-invoice-scanner
